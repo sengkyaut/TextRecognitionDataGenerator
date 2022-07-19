@@ -473,14 +473,15 @@ def main():
     if args.name_format == 2:
         # Create file with filename-to-label connections
         with open(
-            os.path.join(args.output_dir, "labels.txt"), "w", encoding="utf8"
+            os.path.join(args.output_dir, "labels.csv"), "w", encoding="utf8"
         ) as f:
+            f.write("filename,words\n")
             for i in range(string_count):
                 file_name = str(i) + "." + args.extension
                 label = strings[i]
                 if args.space_width == 0:
                     label = label.replace(" ", "")
-                f.write("{} {}\n".format(file_name, label))
+                f.write("{},{}\n".format(file_name, label))
 
 
 if __name__ == "__main__":

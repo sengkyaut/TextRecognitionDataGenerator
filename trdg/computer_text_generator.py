@@ -18,16 +18,7 @@ def generate(
 ):
     if orientation == 0:
         return _generate_horizontal_text(
-            text,
-            font,
-            text_color,
-            font_size,
-            space_width,
-            character_spacing,
-            fit,
-            word_split,
-            stroke_width,
-            stroke_fill,
+            text, font, text_color, font_size, space_width, character_spacing, fit, word_split, stroke_width, stroke_fill,
         )
     elif orientation == 1:
         return _generate_vertical_text(
@@ -42,7 +33,7 @@ def _generate_horizontal_text(
     text, font, text_color, font_size, space_width, character_spacing, fit, word_split, 
     stroke_width=0, stroke_fill="#282828"
 ):
-    image_font = ImageFont.truetype(font=font, size=font_size)
+    image_font = ImageFont.truetype(font=font, size=font_size, layout_engine=ImageFont.Layout.RAQM)
 
     space_width = int(image_font.getsize(" ")[0] * space_width)
 
@@ -60,7 +51,8 @@ def _generate_horizontal_text(
     ]
     text_width = sum(piece_widths)
     if not word_split:
-        text_width += character_spacing * (len(text) - 1)
+        text_width = image_font.getsize(splitted_text)[0]
+    #     text_width += character_spacing * (len(text) - 1)
 
     text_height = max([image_font.getsize(p)[1] for p in splitted_text])
 
@@ -90,18 +82,29 @@ def _generate_horizontal_text(
     )
 
     for i, p in enumerate(splitted_text):
-        txt_img_draw.text(
-            (sum(piece_widths[0:i]) + i * character_spacing * int(not word_split), 0),
-            p,
-            fill=fill,
-            font=image_font,
-            stroke_width=stroke_width,
-            stroke_fill=stroke_fill,
-        )
+        if word_split:
+            txt_img_draw.text(
+                (sum(piece_widths[0:i]) + i * character_spacing * int(not word_split), 0),
+                p,
+                fill=fill,
+                font=image_font,
+                stroke_width=stroke_width,
+                stroke_fill=stroke_fill,
+            )
         txt_mask_draw.text(
             (sum(piece_widths[0:i]) + i * character_spacing * int(not word_split), 0),
             p,
             fill=((i + 1) // (255 * 255), (i + 1) // 255, (i + 1) % 255),
+            font=image_font,
+            stroke_width=stroke_width,
+            stroke_fill=stroke_fill,
+        )
+    
+    if not word_split:
+        txt_img_draw.text(
+            (0, 0),
+            splitted_text,
+            fill=fill,
             font=image_font,
             stroke_width=stroke_width,
             stroke_fill=stroke_fill,
@@ -117,7 +120,7 @@ def _generate_vertical_text(
     text, font, text_color, font_size, space_width, character_spacing, fit,
     stroke_width=0, stroke_fill="#282828"
 ):
-    image_font = ImageFont.truetype(font=font, size=font_size)
+    image_font = ImageFont.truetype(font=font, size=font_size, layout_engine=ImageFont.Layout.RAQM)
 
     space_height = int(image_font.getsize(" ")[1] * space_width)
 
